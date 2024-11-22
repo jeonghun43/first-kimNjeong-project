@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 class Editpage extends StatefulWidget {
   String name = "";
 
-  Editpage({super.key, required this.name});
+  var pin;
+
+  Editpage({super.key, required this.name, required this.pin});
 
   @override
   State<Editpage> createState() => _EditpageState(name);
@@ -17,12 +19,15 @@ class _EditpageState extends State<Editpage> {
   String content = "";
   DbHelper dbh = DbHelper();
   Future? editFuture;
+  var pinContacts;
+  bool? isAlready;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     editFuture = readamemo();
+    isAlready = widget.pin.contains(name);
   }
 
   _EditpageState(String name) {
@@ -43,7 +48,25 @@ class _EditpageState extends State<Editpage> {
           ),
           actions: [
             IconButton(
-                onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                setState(() {
+                  isAlready = !isAlready!;
+                });
+              },
+              icon: Icon(
+                isAlready! ? Icons.star : Icons.star_border,
+                color: isAlready! ? Colors.yellow : Colors.black,
+                size: 35,
+              ),
+            ),
+            IconButton(
+                onPressed: () {
+                  if (isAlready!)
+                    widget.pin.contains(name) ? {} : widget.pin.add(name);
+                  else
+                    widget.pin.contains(name) ? widget.pin.remove(name) : {};
+                  Navigator.pop(context, widget.pin);
+                },
                 icon: const Icon(
                   Icons.dangerous_outlined,
                   size: 35,
@@ -52,7 +75,11 @@ class _EditpageState extends State<Editpage> {
             IconButton(
               onPressed: () {
                 updateamemo();
-                return Navigator.pop(context);
+                if (isAlready!)
+                  widget.pin.contains(name) ? {} : widget.pin.add(name);
+                else
+                  widget.pin.contains(name) ? widget.pin.remove(name) : {};
+                Navigator.pop(context, widget.pin);
               },
               icon: const Icon(
                 Icons.save,
